@@ -1,7 +1,8 @@
 {
   "main": "lib/binding.js",
   "dependencies": {
-    "node-addon-api": "^1.1.0"
+    "node-addon-api": "^1.1.0",
+    "cmake-js": "^6.1.0"
   },
   "scripts": {
     "test": "node --napi-modules ./test/test_binding.js",
@@ -29,8 +30,5 @@
   "bugs": {
     "url": "https://github.com/SergeyFromHell/node-mdbx/issues"
   },
-  "homepage": "https://github.com/SergeyFromHell/node-mdbx#readme",
-  "devDependencies": {
-    "cmake-js": "^6.1.0"
-  }
+  "homepage": "https://github.com/SergeyFromHell/node-mdbx#readme"
 }
