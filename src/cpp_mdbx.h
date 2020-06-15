@@ -1,6 +1,7 @@
 #pragma once
 
 #include <napi.h>
+#include "mdbx.h"
 
 class CppMdbx : public Napi::ObjectWrap<CppMdbx>
 {
