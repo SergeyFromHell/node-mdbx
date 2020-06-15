@@ -6,8 +6,12 @@ project(node-mdbx-native)
 add_definitions(-DMDBX_BUILD_FLAGS_CONFIG="$<$<CONFIG:Debug>:${CMAKE_C_FLAGS_DEBUG} ${CMAKE_C_DEFINES_DEBUG}>$<$<CONFIG:Release>:${CMAKE_C_FLAGS_RELEASE} ${CMAKE_C_DEFINES_RELEASE}>$<$<CONFIG:RelWithDebInfo>:${CMAKE_C_FLAGS_RELWITHDEBINFO} ${CMAKE_C_DEFINES_RELWITHDEBINFO}>$<$<CONFIG:MinSizeRel>:${CMAKE_C_FLAGS_MINSIZEREL} ${CMAKE_C_DEFINES_MINSIZEREL}>")
 
 # Build a shared library named after the project from the files in `src/`
-file(GLOB SOURCE_FILES "src/*.cc" "src/*.h")
-file(GLOB SOURCE_FILES "deps/mdbx/*.c" "deps/mdbx/*.h")
+file(GLOB SOURCE_FILES
+    "src/*.cc"
+    "src/*.h"
+    "deps/mdbx/*.c"
+    "deps/mdbx/*.h"
+    )
 add_library(${PROJECT_NAME} SHARED ${SOURCE_FILES})
 
 # Gives our library file a .node extension without any "lib" prefix
