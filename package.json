@@ -1,0 +1,36 @@
+{
+  "main": "lib/binding.js",
+  "dependencies": {
+    "node-addon-api": "^1.1.0"
+  },
+  "scripts": {
+    "test": "node --napi-modules ./test/test_binding.js",
+    "build": "cmake-js rebuild",
+    "install": "cmake-js rebuild"
+  },
+  "gypfile": true,
+  "name": "node-mdbx",
+  "version": "0.0.1",
+  "description": "Node bindings for mdbx.",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/SergeyFromHell/node-mdbx.git"
+  },
+  "keywords": [
+    "mdbx",
+    "database",
+    "db",
+    "kv",
+    "bindings",
+    "embedded"
+  ],
+  "author": "SergeyFromHell",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/SergeyFromHell/node-mdbx/issues"
+  },
+  "homepage": "https://github.com/SergeyFromHell/node-mdbx#readme",
+  "devDependencies": {
+    "cmake-js": "^6.1.0"
+  }
+}
