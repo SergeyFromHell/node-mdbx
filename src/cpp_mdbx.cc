@@ -143,8 +143,6 @@ void CppMdbx::_dbClose() {
     _dbEnv = NULL;
     
     _opened = false;
-
-    return env.Undefined();
 }
 
 CppMdbx::~CppMdbx() {
