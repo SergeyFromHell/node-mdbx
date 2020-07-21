@@ -9,7 +9,15 @@ public:
     CppMdbx(const Napi::CallbackInfo&);
     Napi::Value Open(const Napi::CallbackInfo&);
     Napi::Value Close(const Napi::CallbackInfo&);
-    Napi::Value Transact(const Napi::CallbackInfo&);
+
+    Napi::Value BeginTransaction(const Napi::CallbackInfo&);
+    Napi::Value CommitTransaction(const Napi::CallbackInfo&);
+    Napi::Value AbortTransaction(const Napi::CallbackInfo&);
+    
+    Napi::Value Put(const Napi::CallbackInfo&);
+    Napi::Value Get(const Napi::CallbackInfo&);
+    Napi::Value Del(const Napi::CallbackInfo&);
+    Napi::Value Has(const Napi::CallbackInfo&);
 
     static Napi::Function GetClass(Napi::Env);
 

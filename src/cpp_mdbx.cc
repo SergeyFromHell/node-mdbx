@@ -87,54 +87,95 @@ Napi::Value CppMdbx::Close(const Napi::CallbackInfo& info) {
     return env.Undefined();
 }
 
-Napi::Value CppMdbx::Transact(const Napi::CallbackInfo& info) {
+Napi::Value CppMdbx::BeginTransaction(const Napi::CallbackInfo& info) {
     Napi::Env env = info.Env();
 
     if (_dbTxn)
         throw Napi::Error::New(env, "Multiple parallel transactions.");
 
-    if (!info[0].IsFunction())
-        throw Napi::Error::New(env, "Action should be a function.");
+    int flags = 0;
+    if (_readOnly)
+        flags |= MDBX_RDONLY;
+    const int rc = mdbx_txn_begin(_dbEnv, NULL, flags, &_dbTxn);
+    checkMdbxResult(rc, env);
 
-    auto action = info[0].As<Napi::Function>();
+    return env.Undefined();
+}
 
-    int rc = MDBX_SUCCESS;
-    unsigned flags = 0;
-    try {
-        flags = 0;
-        if (_readOnly)
-            flags = MDBX_RDONLY;
-        rc = mdbx_txn_begin(_dbEnv, NULL, flags, &_dbTxn);
-        checkMdbxResult(rc, env);
+Napi::Value CppMdbx::CommitTransaction(const Napi::CallbackInfo& info) {
+    Napi::Env env = info.Env();
 
-        // action
-        Napi::Value result = action.Call({});
+    if (!_dbTxn)
+        throw Napi::Error::New(env, "No transaction started.");
 
-        rc = mdbx_txn_commit(_dbTxn);
-        checkMdbxResult(rc, env);
+    const int rc = mdbx_txn_commit(_dbTxn);
+    _dbTxn = NULL;
+    checkMdbxResult(rc, env);
 
-        _dbTxn = NULL;
-        return result;
-    } catch(...) {
-        if (_dbTxn) {
-            mdbx_txn_abort(_dbTxn);
-            _dbTxn = NULL;
-        };
-        throw;
-    }
+    return env.Undefined();
+}
+
+Napi::Value CppMdbx::AbortTransaction(const Napi::CallbackInfo& info) {
+    Napi::Env env = info.Env();
+
+    if (!_dbTxn)
+        throw Napi::Error::New(env, "No transaction started.");
+
+    const int rc = mdbx_txn_abort(_dbTxn);
+    _dbTxn = NULL;
+    checkMdbxResult(rc, env);
+
+    return env.Undefined();
+}
+
+Napi::Value CppMdbx::Put(const Napi::CallbackInfo& info) {
+    Napi::Env env = info.Env();
+
+    return env.Undefined();
+}
+
+Napi::Value CppMdbx::Get(const Napi::CallbackInfo& info) {
+    Napi::Env env = info.Env();
+
+    return env.Undefined();
+}
+
+Napi::Value CppMdbx::Del(const Napi::CallbackInfo& info) {
+    Napi::Env env = info.Env();
+
+    return env.Undefined();
+}
+
+Napi::Value CppMdbx::Has(const Napi::CallbackInfo& info) {
+    Napi::Env env = info.Env();
+
+    return env.Undefined();
 }
 
 Napi::Function CppMdbx::GetClass(Napi::Env env) {
     return DefineClass(env, "CppMdbx", {
         CppMdbx::InstanceMethod("open", &CppMdbx::Open),
         CppMdbx::InstanceMethod("close", &CppMdbx::Close),
-        CppMdbx::InstanceMethod("transact", &CppMdbx::Transact),
+
+        CppMdbx::InstanceMethod("begin", &CppMdbx::BeginTransaction),
+        CppMdbx::InstanceMethod("commit", &CppMdbx::CommitTransaction),
+        CppMdbx::InstanceMethod("abort", &CppMdbx::AbortTransaction),
+
+        CppMdbx::InstanceMethod("put", &CppMdbx::Put),
+        CppMdbx::InstanceMethod("get", &CppMdbx::Get),
+        CppMdbx::InstanceMethod("del", &CppMdbx::Del),
+        CppMdbx::InstanceMethod("has", &CppMdbx::Has),
     });
 }
 
 void CppMdbx::_dbClose() {
     if (!_opened)
         return;
+
+    if (_dbTxn) {
+        mdbx_txn_abort(_dbTxn);
+        _dbTxn = NULL;
+    };
 
     mdbx_dbi_close(_dbEnv, _dbDbi);
     _dbDbi = 0;
