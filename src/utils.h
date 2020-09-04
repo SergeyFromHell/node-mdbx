@@ -33,3 +33,16 @@ static MDBX_val CreateMdbxVal(const buffer_t &buffer) {
     val.iov_len = buffer.size();
     return val;
 }
+
+
+// Throwing other than Napi::Error from C++ code to calling JS code leads to program termination
+template<typename F>
+static auto wrapException(Napi::Env env, const F &f) {
+    try {
+        return f();
+    } catch(Napi::Error &) {
+        throw;
+    } catch(std::exception &e) {
+        throw Napi::Error::New(env, e.what());
+    };
+}

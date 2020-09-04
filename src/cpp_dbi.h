@@ -3,26 +3,32 @@
 #include <napi.h>
 #include "mdbx.h"
 #include "db_env.h"
+#include "utils.h"
 
 class CppDbi : public Napi::ObjectWrap<CppDbi>
 {
 public:
-    CppDbi(const Napi::CallbackInfo & info): Napi::ObjectWrap<CppDbi>(info) {};
+    CppDbi(const Napi::CallbackInfo & info);
 
-    inline static Napi::Function GetClass(Napi::Env env) {
-        return DefineClass(env, "CppDbi", {
+    static Napi::Function GetClass(Napi::Env env);
 
-        });
-    }
+    void Init(const DbEnvPtr &dbEnvPtr, MDBX_dbi dbDbi);
 
-    inline void Init(const DbEnvPtr &dbEnvPtr, MDBX_dbi dbDbi) {
-        _dbEnvPtr = dbEnvPtr;
-        _dbDbi = dbDbi;
-    }
+    Napi::Value Put(const Napi::CallbackInfo& info);
+    Napi::Value Get(const Napi::CallbackInfo& info);
+    Napi::Value Del(const Napi::CallbackInfo& info);
+    Napi::Value Has(const Napi::CallbackInfo& info);
 
-    ~CppDbi() {}
+    Napi::Value FirstKey(const Napi::CallbackInfo& info);
+    Napi::Value LastKey(const Napi::CallbackInfo& info);
+    Napi::Value NextKey(const Napi::CallbackInfo& info);
+    Napi::Value PrevKey(const Napi::CallbackInfo& info);
 
 private:
+    void _check(Napi::Env env);
+
     DbEnvPtr _dbEnvPtr;
     MDBX_dbi _dbDbi = 0;
+    buffer_t _keyBuffer;
+    buffer_t _valueBuffer;
 };
