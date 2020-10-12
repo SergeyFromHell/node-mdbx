@@ -34,7 +34,7 @@ Napi::Value CppDbi::Put(const Napi::CallbackInfo& info) {
         MDBX_val key = CreateMdbxVal(_keyBuffer);
         MDBX_val value = CreateMdbxVal(_valueBuffer);
 
-        const int rc = mdbx_put(_dbEnvPtr->GetTransaction(), _dbDbi, &key, &value, MDBX_PUT_DEFAULTS);
+        const int rc = mdbx_put(_dbEnvPtr->GetTransaction(), _dbDbi, &key, &value, MDBX_UPSERT);
         CheckMdbxResult(rc);
 
         return env.Undefined();
