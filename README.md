@@ -44,7 +44,7 @@ const result = db.transact(function action() {
   
   // working with dbi
   
-  dbi.put('key', 'value);
+  dbi.put('key', 'value');
 
   // Buffer.isBuffer(value) == true && String(value) == 'value'
   const value = dbi.get('key');
