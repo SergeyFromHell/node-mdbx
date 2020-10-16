@@ -39,7 +39,7 @@ const db = new MDBX({
 // It accepts *sync* function as only parameter. Nested calls are possible
 // (but commit/rollback mechanics will only work at top-level .transact call).
 
-const result = db.transact(function action {
+const result = db.transact(function action() {
   const dbi = db.getDbi('main');
   
   // working with dbi
