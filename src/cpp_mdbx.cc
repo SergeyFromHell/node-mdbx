@@ -22,10 +22,15 @@ CppMdbx::CppMdbx(const Napi::CallbackInfo& info) : ObjectWrap(info) {
     if (options.Has("pageSize"))
         pageSize = options.Get("pageSize").ToNumber();
 
+    unsigned maxDbs = 0;
+    if (options.Has("maxDbs"))
+        maxDbs = (unsigned) options.Get("maxDbs").ToNumber();
+
     const DbEnvParameters dbEnvParameters = {
         .dbPath = dbPath,
         .readOnly = readOnly,
-        .pageSize = pageSize
+        .pageSize = pageSize,
+        .maxDbs = maxDbs
     };
     _dbEnvPtr.reset(new DbEnv());
     _dbEnvPtr->Open(dbEnvParameters);

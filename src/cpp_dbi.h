@@ -23,6 +23,7 @@ public:
     Napi::Value LastKey(const Napi::CallbackInfo& info);
     Napi::Value NextKey(const Napi::CallbackInfo& info);
     Napi::Value PrevKey(const Napi::CallbackInfo& info);
+    Napi::Value LowerBoundKey(const Napi::CallbackInfo& info);
 
 private:
     void _check(Napi::Env env);

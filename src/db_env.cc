@@ -11,6 +11,11 @@ void DbEnv::Open(const DbEnvParameters &parameters) {
         rc = mdbx_env_create(&env);
         CheckMdbxResult(rc);
 
+        if (parameters.maxDbs > 0) {
+            rc = mdbx_env_set_maxdbs(env, (MDBX_dbi) parameters.maxDbs);
+            CheckMdbxResult(rc);
+        };
+
         rc = mdbx_env_set_geometry(
             env,
             -1, // size_lower

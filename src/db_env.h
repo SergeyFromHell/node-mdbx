@@ -20,6 +20,7 @@ struct DbEnvParameters {
     std::string dbPath;
     bool readOnly = false;
     intptr_t pageSize = -1;
+    unsigned maxDbs = 0;
 };
 
 class DbEnv {

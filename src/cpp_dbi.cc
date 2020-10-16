@@ -10,10 +10,11 @@ Napi::Function CppDbi::GetClass(Napi::Env env) {
         CppDbi::InstanceMethod("del", &CppDbi::Del),
         CppDbi::InstanceMethod("has", &CppDbi::Has),
 
-        CppDbi::InstanceMethod("firstKey", &CppDbi::FirstKey),
-        CppDbi::InstanceMethod("lastKey", &CppDbi::LastKey),
-        CppDbi::InstanceMethod("nextKey", &CppDbi::NextKey),
-        CppDbi::InstanceMethod("prevKey", &CppDbi::PrevKey),
+        CppDbi::InstanceMethod("first", &CppDbi::FirstKey),
+        CppDbi::InstanceMethod("last", &CppDbi::LastKey),
+        CppDbi::InstanceMethod("next", &CppDbi::NextKey),
+        CppDbi::InstanceMethod("prev", &CppDbi::PrevKey),
+        CppDbi::InstanceMethod("lowerBound", &CppDbi::LowerBoundKey),
     });
 }
 
@@ -167,8 +168,45 @@ Napi::Value CppDbi::NextKey(const Napi::CallbackInfo& info) {
     Napi::Env env = info.Env();
 
     _check(env);
+    
+    if (info[0].IsNull() || info[0].IsUndefined())
+        return env.Undefined();
+
+    ExtractBuffer(info[0], _keyBuffer);
+    MDBX_val inKey = CreateMdbxVal(_keyBuffer);
 
     return wrapException(env, [&] () {
+        MDBX_cursor *dbCur = NULL;
+        MDBX_val key = inKey;
+
+        int rc = MDBX_SUCCESS;
+        try {
+            rc = mdbx_cursor_open(_dbEnvPtr->GetTransaction(), _dbDbi, &dbCur);
+            CheckMdbxResult(rc);
+
+            rc = mdbx_cursor_get(dbCur, &key, NULL, MDBX_SET_RANGE);
+            if (rc == MDBX_NOTFOUND)
+                return env.Undefined();
+            CheckMdbxResult(rc);
+
+            const int cmpResult = mdbx_cmp(_dbEnvPtr->GetTransaction(), _dbDbi, &inKey, &key);
+            if (cmpResult == 0) {
+                rc = mdbx_cursor_get(dbCur, &key, NULL, MDBX_NEXT);
+                if (rc == MDBX_NOTFOUND)
+                    return env.Undefined();
+                CheckMdbxResult(rc);
+            };
+
+            Napi::Value result = Napi::Buffer<char>::Copy(env, (const char *)key.iov_base, key.iov_len);
+
+            mdbx_cursor_close(dbCur);
+            return result;
+        } catch(...) {
+            if (dbCur != NULL)
+                mdbx_cursor_close(dbCur);
+            throw;
+        };
+
         return env.Undefined();
     });
 }
@@ -177,8 +215,87 @@ Napi::Value CppDbi::PrevKey(const Napi::CallbackInfo& info) {
     Napi::Env env = info.Env();
 
     _check(env);
+    
+    if (info[0].IsNull() || info[0].IsUndefined())
+        return env.Undefined();
+
+    ExtractBuffer(info[0], _keyBuffer);
+    MDBX_val inKey = CreateMdbxVal(_keyBuffer);
 
     return wrapException(env, [&] () {
+        MDBX_cursor *dbCur = NULL;
+        MDBX_val key = inKey;
+
+        int rc = MDBX_SUCCESS;
+        try {
+            rc = mdbx_cursor_open(_dbEnvPtr->GetTransaction(), _dbDbi, &dbCur);
+            CheckMdbxResult(rc);
+
+            rc = mdbx_cursor_get(dbCur, &key, NULL, MDBX_SET_RANGE);
+            if (rc == MDBX_NOTFOUND) {
+                rc = mdbx_cursor_get(dbCur, &key, NULL, MDBX_LAST);
+                if (rc == MDBX_NOTFOUND)
+                    return env.Undefined();
+            };
+            CheckMdbxResult(rc);
+
+            const int cmpResult = mdbx_cmp(_dbEnvPtr->GetTransaction(), _dbDbi, &inKey, &key);
+            if (cmpResult <= 0) {
+                rc = mdbx_cursor_get(dbCur, &key, NULL, MDBX_PREV);
+                if (rc == MDBX_NOTFOUND)
+                    return env.Undefined();
+                CheckMdbxResult(rc);
+            };
+
+            Napi::Value result = Napi::Buffer<char>::Copy(env, (const char *)key.iov_base, key.iov_len);
+
+            mdbx_cursor_close(dbCur);
+            return result;
+        } catch(...) {
+            if (dbCur != NULL)
+                mdbx_cursor_close(dbCur);
+            throw;
+        };
+
+        return env.Undefined();
+    });
+}
+
+Napi::Value CppDbi::LowerBoundKey(const Napi::CallbackInfo& info) {
+    Napi::Env env = info.Env();
+    
+    if (info[0].IsNull() || info[0].IsUndefined())
+        return FirstKey(info);
+
+    _check(env);
+
+    ExtractBuffer(info[0], _keyBuffer);
+    MDBX_val inKey = CreateMdbxVal(_keyBuffer);
+
+    return wrapException(env, [&] () {
+        MDBX_cursor *dbCur = NULL;
+        MDBX_val key = inKey;
+
+        int rc = MDBX_SUCCESS;
+        try {
+            rc = mdbx_cursor_open(_dbEnvPtr->GetTransaction(), _dbDbi, &dbCur);
+            CheckMdbxResult(rc);
+
+            rc = mdbx_cursor_get(dbCur, &key, NULL, MDBX_SET_RANGE);
+            if (rc == MDBX_NOTFOUND)
+                return env.Undefined();
+            CheckMdbxResult(rc);
+
+            Napi::Value result = Napi::Buffer<char>::Copy(env, (const char *)key.iov_base, key.iov_len);
+
+            mdbx_cursor_close(dbCur);
+            return result;
+        } catch(...) {
+            if (dbCur != NULL)
+                mdbx_cursor_close(dbCur);
+            throw;
+        };
+
         return env.Undefined();
     });
 }
