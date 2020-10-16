@@ -21,6 +21,7 @@ struct DbEnvParameters {
     bool readOnly = false;
     intptr_t pageSize = -1;
     unsigned maxDbs = 0;
+    bool stringKeyMode = true;
 };
 
 class DbEnv {
@@ -37,6 +38,7 @@ public:
     void AbortTransaction();
     bool HasTransaction();
     MDBX_txn * GetTransaction();
+    bool IsStringKeyMode();
 
     void _checkTransaction();
     void _checkNotTransaction();
@@ -46,6 +48,7 @@ public:
 
 private:
     bool _readOnly = false;
+    bool _stringKeyMode = true;
     MDBX_env *_env = NULL;
     MDBX_txn *_txn = NULL;
     std::map<std::string, MDBX_dbi> _openedDbis;

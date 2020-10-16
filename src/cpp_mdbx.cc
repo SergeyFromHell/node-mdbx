@@ -26,11 +26,24 @@ CppMdbx::CppMdbx(const Napi::CallbackInfo& info) : ObjectWrap(info) {
     if (options.Has("maxDbs"))
         maxDbs = (unsigned) options.Get("maxDbs").ToNumber();
 
+    bool stringKeyMode = true;
+    if (options.Has("keyMode")) {
+        std::string keyMode = options.Get("keyMode").ToString();
+        if (keyMode == "buffer") {
+            stringKeyMode = false;
+        } else if (keyMode == "string") {
+            // nothing to do
+        } else {
+            throw Napi::Error::New(env, "Wrong keyMode; should be 'string' or 'buffer'.");
+        };
+    };
+
     const DbEnvParameters dbEnvParameters = {
         .dbPath = dbPath,
         .readOnly = readOnly,
         .pageSize = pageSize,
-        .maxDbs = maxDbs
+        .maxDbs = maxDbs,
+        .stringKeyMode = stringKeyMode
     };
     _dbEnvPtr.reset(new DbEnv());
     _dbEnvPtr->Open(dbEnvParameters);

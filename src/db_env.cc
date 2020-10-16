@@ -35,6 +35,7 @@ void DbEnv::Open(const DbEnvParameters &parameters) {
 
         _env = env;
         _readOnly = parameters.readOnly;
+        _stringKeyMode = parameters.stringKeyMode;
     } catch(...) {
         if (env)
             mdbx_env_close(env);
@@ -150,6 +151,10 @@ bool DbEnv::HasTransaction() {
 MDBX_txn * DbEnv::GetTransaction() {
     _checkTransaction();
     return _txn;
+}
+
+bool DbEnv::IsStringKeyMode() {
+    return _stringKeyMode;
 }
 
 void DbEnv::_checkTransaction() {

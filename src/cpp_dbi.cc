@@ -117,10 +117,11 @@ Napi::Value CppDbi::FirstKey(const Napi::CallbackInfo& info) {
                 return env.Undefined();
             CheckMdbxResult(rc);
 
-            Napi::Value result = Napi::Buffer<char>::Copy(env, (const char *)key.iov_base, key.iov_len);
+            Napi::Buffer<char> result = Napi::Buffer<char>::Copy(env, (const char *)key.iov_base, key.iov_len);
 
             mdbx_cursor_close(dbCur);
-            return result;
+
+            return _outKey(result);
         } catch(...) {
             if (dbCur != NULL)
                 mdbx_cursor_close(dbCur);
@@ -150,10 +151,11 @@ Napi::Value CppDbi::LastKey(const Napi::CallbackInfo& info) {
                 return env.Undefined();
             CheckMdbxResult(rc);
 
-            Napi::Value result = Napi::Buffer<char>::Copy(env, (const char *)key.iov_base, key.iov_len);
+            Napi::Buffer<char> result = Napi::Buffer<char>::Copy(env, (const char *)key.iov_base, key.iov_len);
 
             mdbx_cursor_close(dbCur);
-            return result;
+
+            return _outKey(result);
         } catch(...) {
             if (dbCur != NULL)
                 mdbx_cursor_close(dbCur);
@@ -197,10 +199,11 @@ Napi::Value CppDbi::NextKey(const Napi::CallbackInfo& info) {
                 CheckMdbxResult(rc);
             };
 
-            Napi::Value result = Napi::Buffer<char>::Copy(env, (const char *)key.iov_base, key.iov_len);
+            Napi::Buffer<char> result = Napi::Buffer<char>::Copy(env, (const char *)key.iov_base, key.iov_len);
 
             mdbx_cursor_close(dbCur);
-            return result;
+
+            return _outKey(result);
         } catch(...) {
             if (dbCur != NULL)
                 mdbx_cursor_close(dbCur);
@@ -247,10 +250,11 @@ Napi::Value CppDbi::PrevKey(const Napi::CallbackInfo& info) {
                 CheckMdbxResult(rc);
             };
 
-            Napi::Value result = Napi::Buffer<char>::Copy(env, (const char *)key.iov_base, key.iov_len);
+            Napi::Buffer<char> result = Napi::Buffer<char>::Copy(env, (const char *)key.iov_base, key.iov_len);
 
             mdbx_cursor_close(dbCur);
-            return result;
+
+            return _outKey(result);
         } catch(...) {
             if (dbCur != NULL)
                 mdbx_cursor_close(dbCur);
@@ -286,10 +290,10 @@ Napi::Value CppDbi::LowerBoundKey(const Napi::CallbackInfo& info) {
                 return env.Undefined();
             CheckMdbxResult(rc);
 
-            Napi::Value result = Napi::Buffer<char>::Copy(env, (const char *)key.iov_base, key.iov_len);
+            Napi::Buffer<char> result = Napi::Buffer<char>::Copy(env, (const char *)key.iov_base, key.iov_len);
 
             mdbx_cursor_close(dbCur);
-            return result;
+            return _outKey(result);
         } catch(...) {
             if (dbCur != NULL)
                 mdbx_cursor_close(dbCur);
@@ -300,7 +304,13 @@ Napi::Value CppDbi::LowerBoundKey(const Napi::CallbackInfo& info) {
     });
 }
 
-void CppDbi::_check(Napi::Env env) {
+void CppDbi::_check(Napi::Env &env) {
     if (!_dbEnvPtr || !_dbEnvPtr->IsOpened())
         throw Napi::Error::New(env, "Closed.");
+}
+
+Napi::Value CppDbi::_outKey(Napi::Buffer<char> &buffer) {
+    if (_dbEnvPtr->IsStringKeyMode())
+        return buffer.ToString();
+    return buffer;
 }

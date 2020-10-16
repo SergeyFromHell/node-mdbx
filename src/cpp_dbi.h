@@ -26,7 +26,8 @@ public:
     Napi::Value LowerBoundKey(const Napi::CallbackInfo& info);
 
 private:
-    void _check(Napi::Env env);
+    void _check(Napi::Env &env);
+    Napi::Value _outKey(Napi::Buffer<char> &buffer);
 
     DbEnvPtr _dbEnvPtr;
     MDBX_dbi _dbDbi = 0;
