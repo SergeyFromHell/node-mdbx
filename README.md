@@ -143,7 +143,7 @@ Returns true if there is a transaction active.
 
 ### static clearDb(*path*)
 Deletes whole database by it's directory path.
-* Database should not be opened in any process! *
+*Database should not be opened in any process!*
 
 # class *DBI*
 - [DBI#put()](#putkey-value)
