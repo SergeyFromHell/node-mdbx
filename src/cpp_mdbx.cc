@@ -38,12 +38,25 @@ CppMdbx::CppMdbx(const Napi::CallbackInfo& info) : ObjectWrap(info) {
         };
     };
 
+    bool stringValueMode = false;
+    if (options.Has("valueMode")) {
+        std::string valueMode = options.Get("valueMode").ToString();
+        if (valueMode == "buffer") {
+            // nothing to do
+        } else if (valueMode == "string") {
+            stringValueMode = true;
+        } else {
+            throw Napi::Error::New(env, "Wrong valueMode; should be 'string' or 'buffer'.");
+        };
+    };
+
     const DbEnvParameters dbEnvParameters = {
         .dbPath = dbPath,
         .readOnly = readOnly,
         .pageSize = pageSize,
         .maxDbs = maxDbs,
-        .stringKeyMode = stringKeyMode
+        .stringKeyMode = stringKeyMode,
+        .stringValueMode = stringValueMode
     };
     _dbEnvPtr.reset(new DbEnv());
     _dbEnvPtr->Open(dbEnvParameters);
@@ -74,8 +87,8 @@ Napi::Function CppMdbx::GetClass(Napi::Env env) {
         CppMdbx::InstanceMethod("getDbi", &CppMdbx::GetDbi),
 
         CppMdbx::InstanceMethod("beginTransaction", &CppMdbx::BeginTransaction),
-        CppMdbx::InstanceMethod("commitTransaction", &CppMdbx::CommitTransaction),
         CppMdbx::InstanceMethod("abortTransaction", &CppMdbx::AbortTransaction),
+        CppMdbx::InstanceMethod("commitTransaction", &CppMdbx::CommitTransaction),
         CppMdbx::InstanceMethod("hasTransaction", &CppMdbx::HasTransaction),
     });
 }
@@ -84,6 +97,28 @@ void CppMdbx::_dbClose() {
     if (_dbEnvPtr)
         _dbEnvPtr->Close();
     _dbEnvPtr.reset();
+}
+
+Napi::Value CppMdbx::BeginTransaction(const Napi::CallbackInfo &info) {
+    Napi::Env env = info.Env();
+
+    _checkOpened(env);
+
+    wrapException(env, [&]() {
+        _dbEnvPtr->BeginTransaction();
+    });
+
+    return env.Undefined();
+}
+
+Napi::Value CppMdbx::HasTransaction(const Napi::CallbackInfo &info) {
+    Napi::Env env = info.Env();
+
+    _checkOpened(env);
+
+    const bool hasTransaction = _dbEnvPtr->HasTransaction();
+
+    return Napi::Value::From(env, hasTransaction);
 }
 
 Napi::Value CppMdbx::GetDbi(const Napi::CallbackInfo &info) {
@@ -95,29 +130,25 @@ Napi::Value CppMdbx::GetDbi(const Napi::CallbackInfo &info) {
     std::string name;
     if (!nameValue.IsNull() && !nameValue.IsUndefined())
         name = nameValue.ToString();
-
+    
     return wrapException(env, [&]() -> Napi::Value {
         MDBX_dbi dbi = _dbEnvPtr->OpenDbi(name);
         Napi::Value cppDbiValue = _cppDbiConstructor.New({});
         CppDbi *cppDbi = CppDbi::Unwrap(cppDbiValue.ToObject());
-        cppDbi->Init(_dbEnvPtr, dbi);
+        cppDbi->Init(_dbEnvPtr, dbi, name);
         return cppDbiValue;
     });
-}
-
-Napi::Value CppMdbx::BeginTransaction(const Napi::CallbackInfo &info) {
-    Napi::Env env = info.Env();
-
-    _checkOpened(env);
-    _dbEnvPtr->BeginTransaction();
-    return env.Undefined();
 }
 
 Napi::Value CppMdbx::CommitTransaction(const Napi::CallbackInfo &info) {
     Napi::Env env = info.Env();
 
     _checkOpened(env);
-    _dbEnvPtr->CommitTransaction();
+
+    wrapException(env, [&]() {
+        _dbEnvPtr->CommitTransaction();
+    });
+
     return env.Undefined();
 }
 
@@ -125,14 +156,10 @@ Napi::Value CppMdbx::AbortTransaction(const Napi::CallbackInfo &info) {
     Napi::Env env = info.Env();
 
     _checkOpened(env);
-    _dbEnvPtr->AbortTransaction();
+
+    wrapException(env, [&]() {
+        _dbEnvPtr->AbortTransaction();
+    });
+
     return env.Undefined();
-}
-
-Napi::Value CppMdbx::HasTransaction(const Napi::CallbackInfo &info) {
-    Napi::Env env = info.Env();
-
-    _checkOpened(env);
-    const bool hasTransaction = _dbEnvPtr->HasTransaction();
-    return Napi::Value::From(env, hasTransaction);
 }

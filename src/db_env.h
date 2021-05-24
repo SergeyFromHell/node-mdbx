@@ -22,6 +22,7 @@ struct DbEnvParameters {
     intptr_t pageSize = -1;
     unsigned maxDbs = 0;
     bool stringKeyMode = true;
+    bool stringValueMode = false;
 };
 
 class DbEnv {
@@ -38,17 +39,20 @@ public:
     void AbortTransaction();
     bool HasTransaction();
     MDBX_txn * GetTransaction();
+    bool IsStale(const std::string &name, MDBX_dbi dbi);
     bool IsStringKeyMode();
-
-    void _checkTransaction();
-    void _checkNotTransaction();
-    void _checkOpened();
+    bool IsStringValueMode();
 
     ~DbEnv();
 
 private:
+    void _checkTransaction();
+    void _checkNotTransaction();
+    void _checkOpened();
+
     bool _readOnly = false;
     bool _stringKeyMode = true;
+    bool _stringValueMode = false;
     MDBX_env *_env = NULL;
     MDBX_txn *_txn = NULL;
     std::map<std::string, MDBX_dbi> _openedDbis;

@@ -12,7 +12,9 @@ public:
 
     static Napi::Function GetClass(Napi::Env env);
 
-    void Init(const DbEnvPtr &dbEnvPtr, MDBX_dbi dbDbi);
+    void Init(const DbEnvPtr &dbEnvPtr, MDBX_dbi dbDbi, const std::string &name);
+
+    Napi::Value IsStale(const Napi::CallbackInfo& info);
 
     Napi::Value Put(const Napi::CallbackInfo& info);
     Napi::Value Get(const Napi::CallbackInfo& info);
@@ -28,9 +30,11 @@ public:
 private:
     void _check(Napi::Env &env);
     Napi::Value _outKey(Napi::Buffer<char> &buffer);
+    Napi::Value _outValue(Napi::Buffer<char> &buffer);
 
     DbEnvPtr _dbEnvPtr;
     MDBX_dbi _dbDbi = 0;
+    std::string _name;
     buffer_t _keyBuffer;
     buffer_t _valueBuffer;
 };

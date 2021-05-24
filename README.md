@@ -29,18 +29,23 @@ const db = new MDBX({
   // Page size (default is 4096)
   pageSize: 65536,
   
-  // Key mode. Possible values:
+  // Key convert mode. Possible values:
   // 'string' (default) - all returned keys will be auto-converted from buffer to string
-  // 'buffer' - returned keys will be buffers
+  // 'buffer' - returned keys will remain buffers
   keyMode: 'string',
+
+  // Value convert mode. Possible values:
+  // 'string' - all returned values will be auto-converted from buffer to string
+  // 'buffer' (default) - returned values will remain buffers
+  valueMode: 'string',
 });
 
 // All database operations should be enclosed inside transaction with transact method.
 // It accepts *sync* function as only parameter. Nested calls are possible
 // (but commit/rollback mechanics will only work at top-level .transact call).
 
-const result = db.transact(function action() {
-  const dbi = db.getDbi('main');
+const result = db.transact(txn => {
+  const dbi = txn.getDbi('main');
   
   // working with dbi
   
@@ -83,11 +88,12 @@ const result = db.transact(function action() {
 
 // Warning 2: Deadlock will be created with await of nested asyncTransact call. To overcome it:
 //   1. Don't use such a nested calls, or
-//   2. Don't wait (asynchronously) on nested asyncTransact calls within initial asyncTransact call stack.
+//   2. Don't wait (asynchronously, directly or indirectly) on nested asyncTransact calls within
+// initial asyncTransact call stack.
 
 async function dbExample() {
-  await db.asyncTransact(async function action() {
-    const dbi = db.getDbi('main');
+  await db.asyncTransact(async txn => {
+    const dbi = txn.getDbi('main');
     
     // do something with dbi
     // can use async calls
@@ -107,7 +113,6 @@ async function dbExample() {
 - [MDBX#asyncTransact()](#asynctransactaction)
 - [MDBX#close()](#close)
 - [MDBX#closed](#closed)
-- [MDBX#getDbi()](#getdbiname)
 - [MDBX#hasTransaction()](#hastransaction)
 - [MDBX#clearDb()](#static-cleardbpath)
 
@@ -120,9 +125,14 @@ Creates or opens MDBX database. Accepts `options` object.
 - `options.keyMode` - key mode:
   * 'string' - all key-returning methods convert keys from buffer to string (default)
   * 'buffer' - no key conversion
+- `options.valueMode` - value mode:
+  * 'string' - all value-returning methods convert value from buffer to string
+  * 'buffer' - no value conversion (default)
 
 ### .transact(*action*)
 Executes *syncronous* action inside transaction. If transaction is already active, then uses it.
+*action* has single parameter *txn* - current transaction. *txn* should be used to get dbis and
+do data manipulations.
 Rollbacks on error (only for top-level .transact call). Returns the returned value of action call.
 
 ### .asyncTransact(*action*)
@@ -135,15 +145,20 @@ Closes the database.
 ### .closed
 Has true value if database has been closed.
 
-### .getDbi(*name*)
-Opens and returns DBI of a given name (null or empty string - open main/default dbi).
-
 ### .hasTransaction()
 Returns true if there is a transaction active.
 
 ### static clearDb(*path*)
 Deletes whole database by it's directory path.
 *Database should not be opened in any process!*
+
+# class *Txn*
+- [Txn#getDbi()](#getdbiname)
+
+### .getDbi(*name*)
+Opens and returns DBI of a given name (null or empty string - open main/default dbi).
+Don't reuse DBI or Txn objects between different transactions. Storing them for later use
+is undefined behaviour.
 
 # class *DBI*
 - [DBI#put()](#putkey-value)

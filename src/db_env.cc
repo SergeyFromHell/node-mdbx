@@ -36,6 +36,7 @@ void DbEnv::Open(const DbEnvParameters &parameters) {
         _env = env;
         _readOnly = parameters.readOnly;
         _stringKeyMode = parameters.stringKeyMode;
+        _stringValueMode = parameters.stringValueMode;
     } catch(...) {
         if (env)
             mdbx_env_close(env);
@@ -153,8 +154,17 @@ MDBX_txn * DbEnv::GetTransaction() {
     return _txn;
 }
 
+bool DbEnv::IsStale(const std::string &name, MDBX_dbi dbi) {
+    auto it = _openedDbis.find(name);
+    return it == _openedDbis.end() || it->second != dbi;
+}
+
 bool DbEnv::IsStringKeyMode() {
     return _stringKeyMode;
+}
+
+bool DbEnv::IsStringValueMode() {
+    return _stringValueMode;
 }
 
 void DbEnv::_checkTransaction() {

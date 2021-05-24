@@ -5,6 +5,8 @@ CppDbi::CppDbi(const Napi::CallbackInfo & info): Napi::ObjectWrap<CppDbi>(info) 
 
 Napi::Function CppDbi::GetClass(Napi::Env env) {
     return DefineClass(env, "CppDbi", {
+        CppDbi::InstanceMethod("isStale", &CppDbi::IsStale),
+
         CppDbi::InstanceMethod("put", &CppDbi::Put),
         CppDbi::InstanceMethod("get", &CppDbi::Get),
         CppDbi::InstanceMethod("del", &CppDbi::Del),
@@ -18,9 +20,20 @@ Napi::Function CppDbi::GetClass(Napi::Env env) {
     });
 }
 
-void CppDbi::Init(const DbEnvPtr &dbEnvPtr, MDBX_dbi dbDbi) {
+void CppDbi::Init(const DbEnvPtr &dbEnvPtr, MDBX_dbi dbDbi, const std::string &name) {
     _dbEnvPtr = dbEnvPtr;
     _dbDbi = dbDbi;
+    _name = name;
+}
+
+Napi::Value CppDbi::IsStale(const Napi::CallbackInfo& info) {
+    Napi::Env env = info.Env();
+
+    _check(env);
+
+    bool isStale = _dbEnvPtr->IsStale(_name, _dbDbi);
+
+    return Napi::Value::From(env, isStale);
 }
 
 Napi::Value CppDbi::Put(const Napi::CallbackInfo& info) {
@@ -58,7 +71,9 @@ Napi::Value CppDbi::Get(const Napi::CallbackInfo& info) {
             return env.Undefined();
         CheckMdbxResult(rc);
 
-        return (Napi::Value) Napi::Buffer<char>::Copy(env, (const char *)value.iov_base, value.iov_len);
+        Napi::Buffer<char> result = Napi::Buffer<char>::Copy(env, (const char *)value.iov_base, value.iov_len);
+
+        return _outValue(result);
     });
 }
 
@@ -71,10 +86,13 @@ Napi::Value CppDbi::Del(const Napi::CallbackInfo& info) {
 
     return wrapException(env, [&] () {
         MDBX_val key = CreateMdbxVal(_keyBuffer);
+
         const int rc = mdbx_del(_dbEnvPtr->GetTransaction(), _dbDbi, &key, NULL);
+        if (rc == MDBX_NOTFOUND)
+            return Napi::Value::From(env, false);
         CheckMdbxResult(rc);
 
-        return env.Undefined();
+        return Napi::Value::From(env, true);
     });
 }
 
@@ -307,10 +325,17 @@ Napi::Value CppDbi::LowerBoundKey(const Napi::CallbackInfo& info) {
 void CppDbi::_check(Napi::Env &env) {
     if (!_dbEnvPtr || !_dbEnvPtr->IsOpened())
         throw Napi::Error::New(env, "Closed.");
+
 }
 
 Napi::Value CppDbi::_outKey(Napi::Buffer<char> &buffer) {
     if (_dbEnvPtr->IsStringKeyMode())
+        return buffer.ToString();
+    return buffer;
+}
+
+Napi::Value CppDbi::_outValue(Napi::Buffer<char> &buffer) {
+    if (_dbEnvPtr->IsStringValueMode())
         return buffer.ToString();
     return buffer;
 }
