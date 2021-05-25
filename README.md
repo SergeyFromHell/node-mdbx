@@ -27,7 +27,8 @@ const db = new MDBX({
   // maximum number of inner Dbis (default is 1)
   maxDbs: 5,
 
-  sync: 'safenosync',
+  // trade-off for speed and durability
+  syncMode: 'safeNoSync',
   
   // Read-only mode (default is false)
   readOnly: false,
