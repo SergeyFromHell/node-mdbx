@@ -111,6 +111,7 @@ async function dbExample() {
 
 - [class `MDBX`](#class-mdbx)
 - [class `DBI`](#class-dbi)
+- [class `TXN`](#class-txn)
 
 # class *MDBX*
 
@@ -164,12 +165,12 @@ Returns true if there is a transaction active.
 Deletes whole database by it's directory path.
 *Database should not be opened in any process!*
 
-# class *Txn*
-- [Txn#getDbi()](#getdbiname)
+# class *TXN*
+- [TXN#getDbi()](#getdbiname)
 
 ### .getDbi(*name*)
 Opens and returns DBI of a given name (null or empty string - open main/default dbi).
-Don't reuse DBI or Txn objects between different transactions. Storing them for later use
+Don't reuse DBI or TXN objects between different transactions. Storing them for later use
 is undefined behaviour.
 Remember that the maximum number of dbis *maxDbs* greater than 1 should be specified to MDBX constructor at
 database creation time to use dbis other than the default one (*name* == null). Otherwise, an error will occur:
