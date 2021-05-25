@@ -9,6 +9,11 @@ Supported platforms:
 - Windows
 
 ## Requirements
+
+On Linux:
+- CMake
+- gcc
+
 On Windows:
 - [CMake](https://cmake.org/download/)
 - [Build tools for Visual Studio 2019](https://visualstudio.microsoft.com/thank-you-downloading-visual-studio/?sku=BuildTools&rel=16)
