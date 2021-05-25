@@ -4,8 +4,13 @@ This module contains [MDBX](https://github.com/erthink/libmdbx) bindings.
 MDBX is a fork of well-known LMDB embeddable database. It contains various fixes and improvements.
 See [MDBX](https://github.com/erthink/libmdbx) for details.
 
+## Requirements
+On Windows:
+- [CMake](https://cmake.org/download/)
+- [Build tools for Visual Studio 2019](https://visualstudio.microsoft.com/thank-you-downloading-visual-studio/?sku=BuildTools&
+rel=16)
+
 ## Installation
-Currently, only linux environment is supported.
 
 ```bash
 npm install node-mdbx
@@ -159,6 +164,9 @@ Deletes whole database by it's directory path.
 Opens and returns DBI of a given name (null or empty string - open main/default dbi).
 Don't reuse DBI or Txn objects between different transactions. Storing them for later use
 is undefined behaviour.
+Remember that the maximum number of dbis *maxDbs* greater than 1 should be specified to MDBX constructor at
+database creation time to use dbis other than the default one (*name* == null). Otherwise, an error will occur:
+"MDBX_DBS_FULL: Too many DBI-handles (maxdbs reached)".
 
 # class *DBI*
 - [DBI#put()](#putkey-value)
