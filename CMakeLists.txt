@@ -30,7 +30,8 @@ target_include_directories(${PROJECT_NAME} PRIVATE "deps/mdbx")
 target_link_libraries(${PROJECT_NAME} ${CMAKE_JS_LIB})
 
 if(MSVC)
-	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /std:c++latest")
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /std:c++latest")
+    target_link_libraries(${PROJECT_NAME} ntdll.lib)
 endif()
 
 # Include N-API wrappers
