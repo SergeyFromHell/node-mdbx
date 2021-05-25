@@ -6,8 +6,8 @@
   },
   "scripts": {
     "test": "node --napi-modules ./test/test_binding.js",
-    "build": "npx @sergeyfromhell/cmake-js rebuild",
-    "install": "npx @sergeyfromhell/cmake-js rebuild"
+    "build": "node build.js",
+    "install": "node build.js"
   },
   "gypfile": true,
   "name": "node-mdbx",
