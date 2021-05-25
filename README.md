@@ -26,6 +26,8 @@ const db = new MDBX({
   
   // maximum number of inner Dbis (default is 1)
   maxDbs: 5,
+
+  sync: 'safenosync',
   
   // Read-only mode (default is false)
   readOnly: false,
@@ -132,6 +134,12 @@ Creates or opens MDBX database. Accepts `options` object.
 - `options.valueMode` - value mode:
   * 'string' - all value-returning methods convert value from buffer to string
   * 'buffer' - no value conversion (default)
+- `options.syncMode` - sync mode (ordered by decreasing safety):
+  * 'durable' (default) - durable sync mode (MDBX_SYNC_DURABLE)
+  * 'noMetaSync' - no meta sync on commit (MDBX_NOMETASYNC)
+  * 'safeNoSync' - don't sync anything but keep previous steady commits (MDBX_NOMETASYNC + MDBX_SAFE_NOSYNC)
+  * 'unsafe' (fastest) - don't sync anything and wipe previous steady commits (MDBX_NOMETASYNC + MDBX_UTTERLY_NOSYNC)
+  See http://erthink.github.io/libmdbx/group__sync__modes.html for details.
 
 ### .transact(*action*)
 Executes *syncronous* action inside transaction. If transaction is already active, then uses it.
@@ -141,7 +149,7 @@ Rollbacks on error (only for top-level .transact call). Returns the returned val
 
 ### .asyncTransact(*action*)
 Executes *async* action inside transaction. Queues execution if needed.
-* Warning! Avoid nested .asyncTransact awaits as it could lead to a deadlock! *
+*Warning! Avoid nested .asyncTransact awaits as it could lead to a deadlock!*
 
 ### .close()
 Closes the database.
@@ -182,7 +190,7 @@ database creation time to use dbis other than the default one (*name* == null). 
 Set value of a key. Key and value should be Buffer or string.
 
 ### .get(*key*)
-Get value of a *key*. Returns Buffer with it's value if such a key exists. Returns undefined otherwise.
+Get value of a *key*. Returns Buffer (or string, if 'string' valueMode is used) with it's value if such a key exists. Returns undefined otherwise.
 
 ### .has(*key*)
 Returns true if *key* exists. Returns false otherwise.

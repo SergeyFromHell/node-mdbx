@@ -27,7 +27,7 @@ void DbEnv::Open(const DbEnvParameters &parameters) {
         );
         CheckMdbxResult(rc);
 
-        MDBX_env_flags_t envFlags = MDBX_ACCEDE | MDBX_LIFORECLAIM | MDBX_NOMETASYNC | MDBX_SAFE_NOSYNC;
+        MDBX_env_flags_t envFlags = MDBX_ACCEDE | MDBX_LIFORECLAIM | (MDBX_env_flags_t) parameters.syncMode;
         if (parameters.readOnly)
             envFlags |= MDBX_RDONLY;
         rc = mdbx_env_open(env, parameters.dbPath.c_str(), envFlags, 0666);

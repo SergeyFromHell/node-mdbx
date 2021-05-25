@@ -16,6 +16,13 @@ class DbEnv;
 
 typedef std::shared_ptr<DbEnv> DbEnvPtr;
 
+enum class SyncMode {
+    durable = 0,
+    noMetaSync = MDBX_NOMETASYNC,
+    safeNoSync = MDBX_NOMETASYNC | MDBX_SAFE_NOSYNC,
+    unsafe = MDBX_NOMETASYNC | MDBX_UTTERLY_NOSYNC
+};
+
 struct DbEnvParameters {
     std::string dbPath;
     bool readOnly = false;
@@ -23,6 +30,7 @@ struct DbEnvParameters {
     unsigned maxDbs = 0;
     bool stringKeyMode = true;
     bool stringValueMode = false;
+    SyncMode syncMode = SyncMode::durable;
 };
 
 class DbEnv {

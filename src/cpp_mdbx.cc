@@ -50,13 +50,30 @@ CppMdbx::CppMdbx(const Napi::CallbackInfo& info) : ObjectWrap(info) {
         };
     };
 
+    SyncMode syncMode = SyncMode::durable;
+    if (options.Has("syncMode")) {
+        std::string strSyncMode = options.Get("syncMode").ToString();
+        if (strSyncMode == "durable") {
+            // nothing to do
+        } else if (strSyncMode == "noMetaSync") {
+            syncMode = SyncMode::noMetaSync;
+        } else if (strSyncMode == "safeNoSync") {
+            syncMode = SyncMode::safeNoSync;
+        } else if (strSyncMode == "unsafe") {
+            syncMode = SyncMode::unsafe;
+        } else {
+            throw Napi::Error::New(env, "Wrong syncMode; should be one of: 'durable', 'noMetaSync', 'safeNoSync', 'unsafe'.");
+        };
+    };
+
     const DbEnvParameters dbEnvParameters = {
         .dbPath = dbPath,
         .readOnly = readOnly,
         .pageSize = pageSize,
         .maxDbs = maxDbs,
         .stringKeyMode = stringKeyMode,
-        .stringValueMode = stringValueMode
+        .stringValueMode = stringValueMode,
+        .syncMode = syncMode
     };
     _dbEnvPtr.reset(new DbEnv());
     _dbEnvPtr->Open(dbEnvParameters);
