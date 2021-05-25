@@ -11,7 +11,7 @@
   },
   "gypfile": true,
   "name": "node-mdbx",
-  "version": "0.2.2",
+  "version": "0.2.3",
   "description": "Node bindings for mdbx.",
   "repository": {
     "type": "git",
