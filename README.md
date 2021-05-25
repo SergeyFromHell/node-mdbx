@@ -7,8 +7,7 @@ See [MDBX](https://github.com/erthink/libmdbx) for details.
 ## Requirements
 On Windows:
 - [CMake](https://cmake.org/download/)
-- [Build tools for Visual Studio 2019](https://visualstudio.microsoft.com/thank-you-downloading-visual-studio/?sku=BuildTools&
-rel=16)
+- [Build tools for Visual Studio 2019](https://visualstudio.microsoft.com/thank-you-downloading-visual-studio/?sku=BuildTools&rel=16)
 
 ## Installation
 
