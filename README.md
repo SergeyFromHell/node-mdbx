@@ -1,8 +1,12 @@
 # **node-mdbx**
-This module contains [MDBX](https://github.com/erthink/libmdbx) bindings.
+This module contains [libmdbx](https://github.com/erthink/libmdbx) bindings.
 
 MDBX is a fork of well-known LMDB embeddable database. It contains various fixes and improvements.
-See [MDBX](https://github.com/erthink/libmdbx) for details.
+See [libmdbx](https://github.com/erthink/libmdbx) for details.
+
+Supported platforms:
+- Linux
+- Windows
 
 ## Requirements
 On Windows:
@@ -44,7 +48,7 @@ const db = new MDBX({
   // Value convert mode. Possible values:
   // 'string' - all returned values will be auto-converted from buffer to string
   // 'buffer' (default) - returned values will remain buffers
-  valueMode: 'string',
+  valueMode: 'buffer',
 });
 
 // All database operations should be enclosed inside transaction with transact method.
