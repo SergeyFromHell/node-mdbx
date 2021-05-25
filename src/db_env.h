@@ -41,6 +41,7 @@ public:
     bool IsReadOnly();
 
     MDBX_dbi OpenDbi(const std::string &name);
+    void ClearDbi(const std::string &name, bool remove);
 
     void BeginTransaction();
     void CommitTransaction();

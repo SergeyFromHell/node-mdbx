@@ -105,6 +105,15 @@ MDBX_dbi DbEnv::OpenDbi(const std::string &name) {
     return dbi;
 }
 
+void DbEnv::ClearDbi(const std::string &name, bool remove) {
+    _checkTransaction();
+    MDBX_dbi dbi = OpenDbi(name);
+    if (remove)
+        _openedDbis.erase(name);
+    const int rc = mdbx_drop(_txn, dbi, remove);
+    CheckMdbxResult(rc);
+}
+
 void DbEnv::_checkOpened() {
     if (_env == NULL)
         throw DbException("Closed.");

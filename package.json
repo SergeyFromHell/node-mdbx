@@ -19,6 +19,7 @@
   },
   "keywords": [
     "mdbx",
+    "libmdbx",
     "database",
     "db",
     "kv",

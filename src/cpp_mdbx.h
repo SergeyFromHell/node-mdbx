@@ -12,6 +12,7 @@ public:
 
     Napi::Value Close(const Napi::CallbackInfo&);
     Napi::Value GetDbi(const Napi::CallbackInfo&);
+    Napi::Value ClearDbi(const Napi::CallbackInfo&);
     Napi::Value BeginTransaction(const Napi::CallbackInfo&);
     Napi::Value HasTransaction(const Napi::CallbackInfo&);
     Napi::Value CommitTransaction(const Napi::CallbackInfo&);

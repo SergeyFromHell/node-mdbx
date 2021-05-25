@@ -168,6 +168,7 @@ Deletes whole database by it's directory path.
 
 # class *TXN*
 - [TXN#getDbi()](#getdbiname)
+- [TXN#clearDbi()](#getdbiname-remove)
 
 ### .getDbi(*name*)
 Opens and returns DBI of a given name (null or empty string - open main/default dbi).
@@ -176,6 +177,11 @@ is undefined behaviour.
 Remember that the maximum number of dbis *maxDbs* greater than 1 should be specified to MDBX constructor at
 database creation time to use dbis other than the default one (*name* == null). Otherwise, an error will occur:
 "MDBX_DBS_FULL: Too many DBI-handles (maxdbs reached)".
+
+### .clearDbi(*name*, *remove*)
+Clears (*remove* == false) or removes (*remove* == true) dbi with name *name*.
+If *remove* == true than all corresponding dbi objects will be invalidated. To recreate dbi
+with the same name, one should use .getDbi(*name*) afterwards.
 
 # class *DBI*
 - [DBI#put()](#putkey-value)

@@ -102,6 +102,7 @@ Napi::Function CppMdbx::GetClass(Napi::Env env) {
     return DefineClass(env, "CppMdbx", {
         CppMdbx::InstanceMethod("close", &CppMdbx::Close),
         CppMdbx::InstanceMethod("getDbi", &CppMdbx::GetDbi),
+        CppMdbx::InstanceMethod("clearDbi", &CppMdbx::ClearDbi),
 
         CppMdbx::InstanceMethod("beginTransaction", &CppMdbx::BeginTransaction),
         CppMdbx::InstanceMethod("abortTransaction", &CppMdbx::AbortTransaction),
@@ -155,6 +156,25 @@ Napi::Value CppMdbx::GetDbi(const Napi::CallbackInfo &info) {
         cppDbi->Init(_dbEnvPtr, dbi, name);
         return cppDbiValue;
     });
+}
+
+Napi::Value CppMdbx::ClearDbi(const Napi::CallbackInfo &info) {
+    Napi::Env env = info.Env();
+
+    _checkOpened(env);
+
+    Napi::Value nameValue = info[0];
+    std::string name;
+    if (!nameValue.IsNull() && !nameValue.IsUndefined())
+        name = nameValue.ToString();
+
+    bool remove = info[1].ToBoolean();
+
+    wrapException(env, [&]() {
+        _dbEnvPtr->ClearDbi(name, remove);
+    });
+
+    return env.Undefined();
 }
 
 Napi::Value CppMdbx::CommitTransaction(const Napi::CallbackInfo &info) {
