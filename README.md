@@ -168,7 +168,7 @@ Deletes whole database by it's directory path.
 
 # class *TXN*
 - [TXN#getDbi()](#getdbiname)
-- [TXN#clearDbi()](#getdbiname-remove)
+- [TXN#clearDbi()](#cleardbiname-remove)
 
 ### .getDbi(*name*)
 Opens and returns DBI of a given name (null or empty string - open main/default dbi).
