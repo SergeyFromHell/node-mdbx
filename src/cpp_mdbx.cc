@@ -20,7 +20,7 @@ CppMdbx::CppMdbx(const Napi::CallbackInfo& info) : ObjectWrap(info) {
 
     intptr_t pageSize = -1;
     if (options.Has("pageSize"))
-        pageSize = options.Get("pageSize").ToNumber();
+        pageSize = (int32_t)options.Get("pageSize").ToNumber();
 
     unsigned maxDbs = 0;
     if (options.Has("maxDbs"))
