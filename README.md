@@ -234,3 +234,5 @@ Returns the smallest (lexicographically) key greater or equal to the given input
 It there are no such a keys, returns undefined.
 
 
+# Original author information
+Forked from: (SergeyFromHell)[https://github.com/SergeyFromHell/node-mdbx]
