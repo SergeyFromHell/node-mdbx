@@ -40,8 +40,8 @@ public:
     bool IsOpened();
     bool IsReadOnly();
 
-    MDBX_dbi OpenDbi(const std::string &name);
-    void ClearDbi(const std::string &name, bool remove);
+    MDBX_dbi OpenDbi(const std::string &name, bool dupsort);
+    void ClearDbi(const std::string &name, bool remove, bool dupsort);
 
     void BeginTransaction();
     void CommitTransaction();

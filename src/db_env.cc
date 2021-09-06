@@ -63,7 +63,7 @@ bool DbEnv::IsReadOnly() {
     return _readOnly;
 }
 
-MDBX_dbi DbEnv::OpenDbi(const std::string &name) {
+MDBX_dbi DbEnv::OpenDbi(const std::string &name, bool dupsort) {
     _checkOpened();
 
     auto it = _openedDbis.find(name);
@@ -86,6 +86,8 @@ MDBX_dbi DbEnv::OpenDbi(const std::string &name) {
         MDBX_db_flags_t dbFlags = MDBX_DB_DEFAULTS;
         if (!_readOnly)
             dbFlags = MDBX_CREATE;
+        if (dupsort)
+            dbFlags |= MDBX_DUPSORT | MDBX_DUPFIXED;
         rc = mdbx_dbi_open((_txn != NULL) ? _txn : txn, name.empty() ? NULL : name.c_str(), dbFlags, &dbi);
         CheckMdbxResult(rc);
 
@@ -105,9 +107,9 @@ MDBX_dbi DbEnv::OpenDbi(const std::string &name) {
     return dbi;
 }
 
-void DbEnv::ClearDbi(const std::string &name, bool remove) {
+void DbEnv::ClearDbi(const std::string &name, bool remove, bool dupsort) {
     _checkTransaction();
-    MDBX_dbi dbi = OpenDbi(name);
+    MDBX_dbi dbi = OpenDbi(name, dupsort);
     if (remove)
         _openedDbis.erase(name);
     const int rc = mdbx_drop(_txn, dbi, remove);

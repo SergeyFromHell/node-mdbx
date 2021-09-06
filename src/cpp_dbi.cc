@@ -9,6 +9,8 @@ Napi::Function CppDbi::GetClass(Napi::Env env) {
 
         CppDbi::InstanceMethod("put", &CppDbi::Put),
         CppDbi::InstanceMethod("get", &CppDbi::Get),
+        CppDbi::InstanceMethod("getValuesCount", &CppDbi::GetValuesCount),
+        CppDbi::InstanceMethod("getDup", &CppDbi::GetDup),
         CppDbi::InstanceMethod("del", &CppDbi::Del),
         CppDbi::InstanceMethod("has", &CppDbi::Has),
 
@@ -74,6 +76,66 @@ Napi::Value CppDbi::Get(const Napi::CallbackInfo& info) {
         Napi::Buffer<char> result = Napi::Buffer<char>::Copy(env, (const char *)value.iov_base, value.iov_len);
 
         return _outValue(result);
+    });
+}
+
+Napi::Value CppDbi::GetValuesCount(const Napi::CallbackInfo& info) {
+    Napi::Env env = info.Env();
+
+    _check(env);
+
+    ExtractBuffer(info[0], _keyBuffer);
+
+    return wrapException(env, [&] () {
+        MDBX_val key = CreateMdbxVal(_keyBuffer);
+        MDBX_val value;
+        size_t count;
+
+        const int rc = mdbx_get_ex(_dbEnvPtr->GetTransaction(), _dbDbi, &key, &value, &count);
+        if (rc == MDBX_NOTFOUND)
+            return env.Undefined();
+        printf("%ld\n", count);
+        CheckMdbxResult(rc);
+
+        return Napi::Value::From(env, count);
+    });
+}
+
+Napi::Value CppDbi::GetDup(const Napi::CallbackInfo& info) {
+    Napi::Env env = info.Env();
+
+    _check(env);
+
+    ExtractBuffer(info[0], _keyBuffer);
+    ExtractBuffer(info[1], _dupKeyBuffer);
+
+    return wrapException(env, [&] () {
+        MDBX_cursor *dbCur = NULL;
+        MDBX_val key = CreateMdbxVal(_keyBuffer);
+        MDBX_val dupKey = CreateMdbxVal(_dupKeyBuffer);
+
+        int rc = MDBX_SUCCESS;
+        try {
+            rc = mdbx_cursor_open(_dbEnvPtr->GetTransaction(), _dbDbi, &dbCur);
+            CheckMdbxResult(rc);
+
+            rc = mdbx_cursor_get(dbCur, &key, &dupKey, MDBX_GET_BOTH_RANGE);
+            if (rc == MDBX_NOTFOUND)
+                return env.Undefined();
+            CheckMdbxResult(rc);
+
+            Napi::Buffer<char> result = Napi::Buffer<char>::Copy(env, (const char *)dupKey.iov_base, dupKey.iov_len);
+
+            mdbx_cursor_close(dbCur);
+
+            return _outKey(result);
+        } catch(...) {
+            if (dbCur != NULL)
+                mdbx_cursor_close(dbCur);
+            throw;
+        };
+
+        return env.Undefined();
     });
 }
 
