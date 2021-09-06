@@ -11,7 +11,7 @@
   },
   "gypfile": true,
   "name": "node-mdbx-dupsort",
-  "version": "0.3.1",
+  "version": "0.4.0",
   "description": "Node bindings for mdbx.",
   "repository": {
     "type": "git",
