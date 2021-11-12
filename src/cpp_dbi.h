@@ -21,6 +21,7 @@ public:
     Napi::Value GetValuesCount(const Napi::CallbackInfo& info);
     Napi::Value GetDup(const Napi::CallbackInfo& info);
     Napi::Value Del(const Napi::CallbackInfo& info);
+    Napi::Value DelDup(const Napi::CallbackInfo& info);
     Napi::Value Has(const Napi::CallbackInfo& info);
 
     Napi::Value FirstKey(const Napi::CallbackInfo& info);

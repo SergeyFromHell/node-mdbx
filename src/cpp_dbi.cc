@@ -12,6 +12,7 @@ Napi::Function CppDbi::GetClass(Napi::Env env) {
         CppDbi::InstanceMethod("getValuesCount", &CppDbi::GetValuesCount),
         CppDbi::InstanceMethod("getDup", &CppDbi::GetDup),
         CppDbi::InstanceMethod("del", &CppDbi::Del),
+        CppDbi::InstanceMethod("delDup", &CppDbi::DelDup),
         CppDbi::InstanceMethod("has", &CppDbi::Has),
 
         CppDbi::InstanceMethod("first", &CppDbi::FirstKey),
@@ -150,6 +151,27 @@ Napi::Value CppDbi::Del(const Napi::CallbackInfo& info) {
         MDBX_val key = CreateMdbxVal(_keyBuffer);
 
         const int rc = mdbx_del(_dbEnvPtr->GetTransaction(), _dbDbi, &key, NULL);
+        if (rc == MDBX_NOTFOUND)
+            return Napi::Value::From(env, false);
+        CheckMdbxResult(rc);
+
+        return Napi::Value::From(env, true);
+    });
+}
+
+Napi::Value CppDbi::DelDup(const Napi::CallbackInfo& info) {
+    Napi::Env env = info.Env();
+
+    _check(env);
+
+    ExtractBuffer(info[0], _keyBuffer);
+    ExtractBuffer(info[1], _dupKeyBuffer);
+
+    return wrapException(env, [&] () {
+        MDBX_val key = CreateMdbxVal(_keyBuffer);
+        MDBX_val dupKey = CreateMdbxVal(_dupKeyBuffer);
+
+        const int rc = mdbx_del(_dbEnvPtr->GetTransaction(), _dbDbi, &key, &dupKey);
         if (rc == MDBX_NOTFOUND)
             return Napi::Value::From(env, false);
         CheckMdbxResult(rc);
