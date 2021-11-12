@@ -19,7 +19,7 @@ public:
     Napi::Value Put(const Napi::CallbackInfo& info);
     Napi::Value Get(const Napi::CallbackInfo& info);
     Napi::Value GetValuesCount(const Napi::CallbackInfo& info);
-    Napi::Value GetDup(const Napi::CallbackInfo& info);
+    Napi::Value HasDup(const Napi::CallbackInfo& info);
     Napi::Value Del(const Napi::CallbackInfo& info);
     Napi::Value DelDup(const Napi::CallbackInfo& info);
     Napi::Value Has(const Napi::CallbackInfo& info);
