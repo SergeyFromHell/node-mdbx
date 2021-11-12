@@ -16,13 +16,13 @@ public:
 
     Napi::Value IsStale(const Napi::CallbackInfo& info);
 
-    Napi::Value Put(const Napi::CallbackInfo& info);
-    Napi::Value Get(const Napi::CallbackInfo& info);
-    Napi::Value GetValuesCount(const Napi::CallbackInfo& info);
-    Napi::Value HasDup(const Napi::CallbackInfo& info);
     Napi::Value Del(const Napi::CallbackInfo& info);
     Napi::Value DelDup(const Napi::CallbackInfo& info);
+    Napi::Value Get(const Napi::CallbackInfo& info);
+    Napi::Value GetValuesCount(const Napi::CallbackInfo& info);
     Napi::Value Has(const Napi::CallbackInfo& info);
+    Napi::Value HasDup(const Napi::CallbackInfo& info);
+    Napi::Value Put(const Napi::CallbackInfo& info);
 
     Napi::Value FirstKey(const Napi::CallbackInfo& info);
     Napi::Value LastKey(const Napi::CallbackInfo& info);
