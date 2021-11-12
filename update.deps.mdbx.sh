@@ -14,5 +14,5 @@ fi
 
 make dist
 
-cp dist/mdbx.c deps/mdbx/
-cp dist/mdbx.h deps/mdbx/
+cp dist/mdbx.c $DIR/deps/mdbx/
+cp dist/mdbx.h $DIR/deps/mdbx/
