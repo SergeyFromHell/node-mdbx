@@ -87,7 +87,7 @@ MDBX_dbi DbEnv::OpenDbi(const std::string &name, bool dupsort) {
         if (!_readOnly)
             dbFlags = MDBX_CREATE;
         if (dupsort)
-            dbFlags |= MDBX_DUPSORT | MDBX_DUPFIXED;
+            dbFlags |= MDBX_DUPSORT;
         rc = mdbx_dbi_open((_txn != NULL) ? _txn : txn, name.empty() ? NULL : name.c_str(), dbFlags, &dbi);
         CheckMdbxResult(rc);
 
