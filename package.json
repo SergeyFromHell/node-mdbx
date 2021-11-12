@@ -1,3 +1,4 @@
+
 {
   "main": "lib/binding.js",
   "dependencies": {
@@ -10,12 +11,12 @@
     "install": "node build.js"
   },
   "gypfile": true,
-  "name": "node-mdbx-dupsort",
-  "version": "0.4.0",
+  "name": "node-mdbx",
+  "version": "0.3.2",
   "description": "Node bindings for mdbx.",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/LogvinovLeon/node-mdbx.git"
+    "url": "git+https://github.com/SergeyFromHell/node-mdbx.git"
   },
   "keywords": [
     "mdbx",
@@ -26,10 +27,10 @@
     "bindings",
     "embedded"
   ],
-  "author": "LogvinovLeon",
+  "author": "SergeyFromHell",
   "license": "ISC",
   "bugs": {
-    "url": "https://github.com/LogvinovLeon/node-mdbx/issues"
+    "url": "https://github.com/SergeyFromHell/node-mdbx/issues"
   },
-  "homepage": "https://github.com/LogvinovLeon/node-mdbx#readme"
+  "homepage": "https://github.com/SergeyFromHell/node-mdbx#readme"
 }
