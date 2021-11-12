@@ -10,7 +10,7 @@
     "install": "node build.js"
   },
   "gypfile": true,
-  "name": "@rmw/mdbx",
+  "name": "node-mdbx",
   "version": "0.3.2",
   "description": "Node bindings for mdbx.",
   "repository": {
