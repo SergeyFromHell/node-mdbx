@@ -145,12 +145,16 @@ Napi::Value CppMdbx::GetDbi(const Napi::CallbackInfo &info) {
     _checkOpened(env);
 
     Napi::Value nameValue = info[0];
+    Napi::Value dupsortValue = info[1];
     std::string name;
+    bool dupsort;
     if (!nameValue.IsNull() && !nameValue.IsUndefined())
         name = nameValue.ToString();
+    if (!dupsortValue.IsNull() && !dupsortValue.IsUndefined())
+        dupsort = dupsortValue.ToBoolean();
     
     return wrapException(env, [&]() -> Napi::Value {
-        MDBX_dbi dbi = _dbEnvPtr->OpenDbi(name);
+        MDBX_dbi dbi = _dbEnvPtr->OpenDbi(name, dupsort);
         Napi::Value cppDbiValue = _cppDbiConstructor.New({});
         CppDbi *cppDbi = CppDbi::Unwrap(cppDbiValue.ToObject());
         cppDbi->Init(_dbEnvPtr, dbi, name);
@@ -164,14 +168,18 @@ Napi::Value CppMdbx::ClearDbi(const Napi::CallbackInfo &info) {
     _checkOpened(env);
 
     Napi::Value nameValue = info[0];
+    Napi::Value dupsortValue = info[1];
     std::string name;
+    bool dupsort;
     if (!nameValue.IsNull() && !nameValue.IsUndefined())
         name = nameValue.ToString();
+    if (!dupsortValue.IsNull() && !dupsortValue.IsUndefined())
+        dupsort = dupsortValue.ToBoolean();
 
     bool remove = info[1].ToBoolean();
 
     wrapException(env, [&]() {
-        _dbEnvPtr->ClearDbi(name, remove);
+        _dbEnvPtr->ClearDbi(name, remove, dupsort);
     });
 
     return env.Undefined();

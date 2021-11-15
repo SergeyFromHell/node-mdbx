@@ -9,7 +9,10 @@ Napi::Function CppDbi::GetClass(Napi::Env env) {
 
         CppDbi::InstanceMethod("put", &CppDbi::Put),
         CppDbi::InstanceMethod("get", &CppDbi::Get),
+        CppDbi::InstanceMethod("getValuesCount", &CppDbi::GetValuesCount),
+        CppDbi::InstanceMethod("hasDup", &CppDbi::HasDup),
         CppDbi::InstanceMethod("del", &CppDbi::Del),
+        CppDbi::InstanceMethod("delDup", &CppDbi::DelDup),
         CppDbi::InstanceMethod("has", &CppDbi::Has),
 
         CppDbi::InstanceMethod("first", &CppDbi::FirstKey),
@@ -77,6 +80,28 @@ Napi::Value CppDbi::Get(const Napi::CallbackInfo& info) {
     });
 }
 
+Napi::Value CppDbi::GetValuesCount(const Napi::CallbackInfo& info) {
+    Napi::Env env = info.Env();
+
+    _check(env);
+
+    ExtractBuffer(info[0], _keyBuffer);
+
+    return wrapException(env, [&] () {
+        MDBX_val key = CreateMdbxVal(_keyBuffer);
+        MDBX_val value;
+        size_t count;
+
+        const int rc = mdbx_get_ex(_dbEnvPtr->GetTransaction(), _dbDbi, &key, &value, &count);
+        if (rc == MDBX_NOTFOUND)
+            return env.Undefined();
+        printf("%ld\n", count);
+        CheckMdbxResult(rc);
+
+        return Napi::Value::From(env, count);
+    });
+}
+
 Napi::Value CppDbi::Del(const Napi::CallbackInfo& info) {
     Napi::Env env = info.Env();
 
@@ -88,6 +113,27 @@ Napi::Value CppDbi::Del(const Napi::CallbackInfo& info) {
         MDBX_val key = CreateMdbxVal(_keyBuffer);
 
         const int rc = mdbx_del(_dbEnvPtr->GetTransaction(), _dbDbi, &key, NULL);
+        if (rc == MDBX_NOTFOUND)
+            return Napi::Value::From(env, false);
+        CheckMdbxResult(rc);
+
+        return Napi::Value::From(env, true);
+    });
+}
+
+Napi::Value CppDbi::DelDup(const Napi::CallbackInfo& info) {
+    Napi::Env env = info.Env();
+
+    _check(env);
+
+    ExtractBuffer(info[0], _keyBuffer);
+    ExtractBuffer(info[1], _dupKeyBuffer);
+
+    return wrapException(env, [&] () {
+        MDBX_val key = CreateMdbxVal(_keyBuffer);
+        MDBX_val dupKey = CreateMdbxVal(_dupKeyBuffer);
+
+        const int rc = mdbx_del(_dbEnvPtr->GetTransaction(), _dbDbi, &key, &dupKey);
         if (rc == MDBX_NOTFOUND)
             return Napi::Value::From(env, false);
         CheckMdbxResult(rc);
@@ -113,6 +159,42 @@ Napi::Value CppDbi::Has(const Napi::CallbackInfo& info) {
         CheckMdbxResult(rc);
 
         return Napi::Value::From(env, true);
+    });
+}
+
+Napi::Value CppDbi::HasDup(const Napi::CallbackInfo& info) {
+    Napi::Env env = info.Env();
+
+    _check(env);
+
+    ExtractBuffer(info[0], _keyBuffer);
+    ExtractBuffer(info[1], _dupKeyBuffer);
+
+    return wrapException(env, [&] () {
+        MDBX_cursor *dbCur = NULL;
+        MDBX_val key = CreateMdbxVal(_keyBuffer);
+        MDBX_val dupKey = CreateMdbxVal(_dupKeyBuffer);
+
+        int rc = MDBX_SUCCESS;
+        try {
+            rc = mdbx_cursor_open(_dbEnvPtr->GetTransaction(), _dbDbi, &dbCur);
+            CheckMdbxResult(rc);
+
+            rc = mdbx_cursor_get(dbCur, &key, &dupKey, MDBX_GET_BOTH_RANGE);
+            if (rc == MDBX_NOTFOUND)
+                return Napi::Value::From(env, false);
+            CheckMdbxResult(rc);
+
+            mdbx_cursor_close(dbCur);
+            return Napi::Value::From(env, true);
+
+        } catch(...) {
+            if (dbCur != NULL)
+                mdbx_cursor_close(dbCur);
+            throw;
+        };
+
+        return Napi::Value::From(env, false);
     });
 }
 

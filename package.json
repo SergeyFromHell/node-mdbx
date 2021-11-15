@@ -1,8 +1,8 @@
 {
   "main": "lib/binding.js",
   "dependencies": {
-    "@sergeyfromhell/cmake-js": "^6.1.0",
-    "node-addon-api": "^3.0.1"
+    "@sergeyfromhell/cmake-js": "^6.1.4",
+    "node-addon-api": "^4.2.0"
   },
   "scripts": {
     "test": "node --napi-modules ./test/test_binding.js",
@@ -11,7 +11,7 @@
   },
   "gypfile": true,
   "name": "node-mdbx",
-  "version": "0.3.1",
+  "version": "0.3.2",
   "description": "Node bindings for mdbx.",
   "repository": {
     "type": "git",
