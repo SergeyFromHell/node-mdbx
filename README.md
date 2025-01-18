@@ -1,8 +1,10 @@
 # **node-mdbx**
-This module contains [libmdbx](https://github.com/erthink/libmdbx) bindings.
+This module contains [libmdbx](https://gitflic.ru/project/erthink/libmdbx) bindings.
 
 MDBX is a fork of well-known LMDB embeddable database. It contains various fixes and improvements.
-See [libmdbx](https://github.com/erthink/libmdbx) for details.
+See [libmdbx](https://gitflic.ru/project/erthink/libmdbx) for details.
+
+Warning! For the moment, the MDBX version used here is outdated and does not contain latest fixes and enhancements.
 
 Supported platforms:
 - Linux
