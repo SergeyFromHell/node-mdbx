@@ -152,7 +152,7 @@ Creates or opens MDBX database. Accepts `options` object.
   * 'noMetaSync' - no meta sync on commit (MDBX_NOMETASYNC)
   * 'safeNoSync' - don't sync anything but keep previous steady commits (MDBX_NOMETASYNC + MDBX_SAFE_NOSYNC)
   * 'unsafe' (fastest) - don't sync anything and wipe previous steady commits (MDBX_NOMETASYNC + MDBX_UTTERLY_NOSYNC)
-  See http://erthink.github.io/libmdbx/group__sync__modes.html for details.
+  See https://libmdbx.dqdkfa.ru/group__sync__modes.html for details.
 
 ### .transact(*action*)
 Executes *syncronous* action inside transaction. If transaction is already active, then uses it.
